@@ -1,0 +1,57 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": []
+  },
+  "formatter": {
+    "enabled": true
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noStaticOnlyClass": "error",
+        "noUselessConstructor": "error",
+        "noUselessThisAlias": "error",
+        "noUselessTypeConstraint": "error",
+        "useArrowFunction": "off",
+        "useLiteralKeys": "error",
+        "useOptionalChain": "error"
+      },
+      "correctness": { "noUnusedVariables": "off", "useArrayLiterals": "off" },
+      "style": {
+        "noInferrableTypes": "error",
+        "noNamespace": "error",
+        "noNonNullAssertion": "error",
+        "useAsConstAssertion": "error",
+        "useBlockStatements": "error",
+        "useConsistentArrayType": "off",
+        "useForOf": "error",
+        "useImportType": "warn",
+        "useLiteralEnumMembers": "error",
+        "useShorthandFunctionType": "error",
+        "useThrowOnlyError": "error"
+      },
+      "suspicious": {
+        "noConfusingVoidType": "error",
+        "noEmptyBlockStatements": "error",
+        "noExplicitAny": "error",
+        "noExtraNonNullAssertion": "error",
+        "noMisleadingInstantiator": "error",
+        "noUnsafeDeclarationMerging": "error",
+        "useAwait": "off",
+        "useNamespaceKeyword": "error"
+      }
+    }
+  }
+}
