@@ -5,11 +5,11 @@
     "email": "me@allypost.net",
     "url": "https://allypost.net"
   },
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "A simple, yet powerful, result type for TypeScript.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/allynet/ishod.git"
+    "url": "git+https://github.com/allynet/ishod.git"
   },
   "license": "MIT",
   "homepage": "https://allynet.github.io/ishod/",

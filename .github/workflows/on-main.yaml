@@ -1,0 +1,35 @@
+name: Main branch workflow
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: "Lint"
+    uses: ./.github/workflows/_lint.yaml
+
+  test:
+    name: "Test"
+    uses: ./.github/workflows/_test.yaml
+    with:
+      artifact-name: coverage
+
+  build:
+    name: "Build"
+    uses: ./.github/workflows/_build.yaml
+    with:
+      artifact-name: main-build
+
+  publish-docs:
+    name: "Publish docs"
+    needs: [lint, test, build]
+    permissions:
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/_publish-docs.yaml

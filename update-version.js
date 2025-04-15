@@ -62,5 +62,5 @@ if (newMajor === oldMajor && newMinor === oldMinor && newPatch === oldPatch) {
   process.exit(1);
 }
 
-packageJson.version = newVersion;
+packageJson.version = `${newMajor}.${newMinor}.${newPatch}`;
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
