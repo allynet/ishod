@@ -1,6 +1,8 @@
 # ishod
 
-ishod is a utility library for working with promises and results.
+`ishod` is a really small (&lt;0.5kb gzipped) and simple utility library for working with promises and results.
+
+It helps you handle errors uniformly and safely across sync and async code.
 
 ## Installation
 
@@ -42,7 +44,110 @@ bun install @allynet/ishod
 
 </details>
 
-## Usage
+## Examples
+
+<details>
+<summary>
+
+### Logging errors
+
+without having to try/catch all the time and leave a bunch of `let val = null` variables around
+
+</summary>
+
+```ts
+import { $result } from "@allynet/ishod";
+
+// Do an unsafe operation safely
+const gamble = $result.try$(() => {
+if (Math.random() > 0.5) {
+return true;
+}
+
+throw new Error("error");
+});
+
+// And process the result safely
+const doubled = $result.map(gamble, (x) => x \* 2);
+
+// Or log the error if it happens
+$result.tapErr(gamble, (error) => {
+console.error(error);
+});
+
+// without having to check everything yourself
+// or creating a bunch of `let val = null` variables
+
+```
+
+</details>
+
+<details>
+<summary>
+
+### Error handling
+
+uniformly with promises and sync code
+
+</summary>
+
+```ts
+import { $result } from "@allynet/ishod";
+
+const requestJson = (url: string) =>
+  $result
+    .try$(fetch(url))
+    .then((x) => $result.map(x, (res) => res.json()))
+    .then((x) => $result.tapErr(x, (error) => console.error(error)));
+
+const response = await requestJson("https://api.example.com/data");
+
+if ($result.isOk(response)) {
+  const data = $result.unwrap(response);
+  console.log(`Got the response data right here: ${data}`);
+}
+```
+
+</details>
+
+<details>
+<summary>
+
+### Returning informative results
+
+instead of just doing `MyThing | null` for everything and praying for the best
+
+</summary>
+
+```ts
+import { $result } from "@allynet/ishod";
+
+const divide = (a: number, b: number) => {
+  if (b === 0) {
+    return $result.err("division by zero");
+  }
+
+  if (a === b) {
+    return $result.err("division by itself");
+  }
+
+  return $result.ok(a / b);
+};
+
+const result = divide(1, 0);
+//    ^? Result<number, "division by zero" | "division by itself">
+
+const resultDoubled = $result.map(result, (x) => x * 2);
+//    ^? Result<number, "division by zero" | "division by itself">
+```
+
+</details>
+
+## Docs overview
+
+The full documentation is available at <https://allynet.github.io/ishod/>.
+
+The following is a quick overview of the API.
 
 ### Result
 
@@ -111,6 +216,8 @@ const otherData = unwrapOr(err("error"), 0);
 assert.equal(otherData, 0);
 ```
 
+### Tapping
+
 You can use the `tap` function to run a function on a result if it's ok:
 
 ```ts
@@ -135,10 +242,20 @@ assert.ok(error === result);
 
 The `tapErr` function won't modify the result.
 
+### Mapping
+
 You can use the `map` function to map a result value:
 
 ```ts
 const result = ok(1);
 const data = map(result, (data) => data * 2);
 assert.deepEqual(data, ok(2));
+```
+
+You can use the `mapErr` function to map an error:
+
+```ts
+const result = err("error");
+const error = mapErr(result, (error) => error.toUpperCase());
+assert.deepEqual(error, err("ERROR"));
 ```
