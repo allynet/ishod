@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from "vitest";
-import type { Err, Ok, ResultError, ResultValue } from "./result";
+import type { Err, Ok, ResultError, ResultValue } from "./types";
 
 describe("ResultValue", () => {
   it("should be the value if the result is an ok", () => {

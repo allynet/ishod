@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import * as $result from "./result";
+import * as $result from "./impl";
 
 describe("result", () => {
   it.each([
