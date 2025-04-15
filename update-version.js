@@ -1,3 +1,4 @@
+/* v8 ignore */
 import fs from "node:fs";
 import path from "node:path";
 
@@ -16,7 +17,7 @@ const isSemver = /^v?(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$/;
 const newVersionParts = newVersion.match(isSemver);
 if (!newVersionParts) {
   console.error(
-    "Invalid version, must be a valid semver version or a prerelease version"
+    "Invalid version, must be a valid semver version or a prerelease version",
   );
   process.exit(1);
 }
@@ -24,7 +25,7 @@ if (!newVersionParts) {
 const oldVersionParts = String(packageJson.version).match(isSemver);
 if (!oldVersionParts) {
   console.error(
-    "Invalid old version, something is wrong with the package.json"
+    "Invalid old version, something is wrong with the package.json",
   );
   process.exit(1);
 }

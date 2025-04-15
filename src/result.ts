@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { isPromise, type Primitive } from "./helpers";
+import { type Primitive, isPromise } from "./helpers";
 
 /**
  * @internal
@@ -7,14 +6,14 @@ import { isPromise, type Primitive } from "./helpers";
  * It's not exported, so you shouldn't use it directly.
  */
 export type result<OK extends boolean, T = never, E = never> = OK extends true
-	? {
-			ok: OK;
-			data: T;
-		}
-	: {
-			ok: OK;
-			error: E;
-		};
+  ? {
+      ok: OK;
+      data: T;
+    }
+  : {
+      ok: OK;
+      error: E;
+    };
 
 /**
  * A result is a type that can be either an `Ok` or an `Err`.
@@ -66,10 +65,10 @@ export type Err<E> = result<false, never, E>;
  */
 // biome-ignore lint/suspicious/noExplicitAny: This is required to properly implement some generics
 export type ResultValue<TResult extends Result<any, any>> = TResult extends Ok<
-	infer D
+  infer D
 >
-	? D
-	: never;
+  ? D
+  : never;
 /**
  * This type is used to get the error of a result.
  *
@@ -81,10 +80,10 @@ export type ResultValue<TResult extends Result<any, any>> = TResult extends Ok<
  */
 // biome-ignore lint/suspicious/noExplicitAny: This is required to properly implement some generics
 export type ResultError<TResult extends Result<any, any>> = TResult extends Err<
-	infer E
+  infer E
 >
-	? E
-	: never;
+  ? E
+  : never;
 
 /**
  * Create an `Ok` variant.
@@ -100,10 +99,10 @@ export type ResultError<TResult extends Result<any, any>> = TResult extends Err<
 export function ok<const T extends Primitive>(data: T): Ok<T>;
 export function ok<T>(data: T): Ok<T>;
 export function ok<T>(data: T): Ok<T> {
-	return {
-		ok: true,
-		data: data,
-	};
+  return {
+    ok: true,
+    data: data,
+  };
 }
 
 /**
@@ -120,10 +119,10 @@ export function ok<T>(data: T): Ok<T> {
 export function err<const E extends Primitive>(error: E): Err<E>;
 export function err<E>(error: E): Err<E>;
 export function err<E>(error: E): Err<E> {
-	return {
-		ok: false,
-		error: error,
-	};
+  return {
+    ok: false,
+    error: error,
+  };
 }
 
 /**
@@ -144,7 +143,7 @@ export function err<E>(error: E): Err<E> {
  * ```
  */
 export function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
-	return result.ok;
+  return result.ok;
 }
 
 /**
@@ -165,7 +164,7 @@ export function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
  * ```
  */
 export function isErr<T, E>(result: Result<T, E>): result is Err<E> {
-	return !result.ok;
+  return !result.ok;
 }
 
 /**
@@ -181,7 +180,7 @@ export function isErr<T, E>(result: Result<T, E>): result is Err<E> {
  * @see {@link unwrapOr}
  */
 export function unwrap<T>(result: Ok<T>): T {
-	return result.data;
+  return result.data;
 }
 
 /**
@@ -197,7 +196,7 @@ export function unwrap<T>(result: Ok<T>): T {
  * @see {@link unwrapOr}
  */
 export function unwrapErr<E>(result: Err<E>): E {
-	return result.error;
+  return result.error;
 }
 
 /**
@@ -225,7 +224,7 @@ export function unwrapErr<E>(result: Err<E>): E {
 export function unwrapForced<T, E>(ok: Ok<T>): T;
 export function unwrapForced<T, E>(err: Err<E>): undefined;
 export function unwrapForced<T, E>(result: Result<T, E>): T | undefined {
-	return (result as Ok<T>).data;
+  return (result as Ok<T>).data;
 }
 
 /**
@@ -247,14 +246,14 @@ export function unwrapForced<T, E>(result: Result<T, E>): T | undefined {
  * @see {@link unwrapForced}
  */
 export function unwrapOr<T, E, U, TResult extends Result<T, E>>(
-	result: TResult,
-	or: U,
+  result: TResult,
+  or: U,
 ): TResult extends Ok<infer D> ? D : U {
-	if (isOk(result)) {
-		return result.data as never;
-	}
+  if (isOk(result)) {
+    return result.data as never;
+  }
 
-	return or as never;
+  return or as never;
 }
 
 /**
@@ -299,23 +298,23 @@ export type TapFn<T> = (data: T) => void;
  * @see {@link tapErr}
  */
 export function tap<T, E>(
-	result: Promise<Result<T, E>>,
-	fn: TapFn<T>,
+  result: Promise<Result<T, E>>,
+  fn: TapFn<T>,
 ): Promise<Result<T, E>>;
 export function tap<T, E>(result: Result<T, E>, fn: TapFn<T>): Result<T, E>;
 export function tap<T, E>(
-	result: Result<T, E> | Promise<Result<T, E>>,
-	fn: TapFn<T>,
+  result: Result<T, E> | Promise<Result<T, E>>,
+  fn: TapFn<T>,
 ): Result<T, E> | Promise<Result<T, E>> {
-	if (isPromise(result)) {
-		return result.then((x) => tap(x, fn));
-	}
+  if (isPromise(result)) {
+    return result.then((x) => tap(x, fn));
+  }
 
-	if (isOk(result)) {
-		fn(result.data);
-	}
+  if (isOk(result)) {
+    fn(result.data);
+  }
 
-	return result;
+  return result;
 }
 
 /**
@@ -350,23 +349,23 @@ export function tap<T, E>(
  * @see {@link mapErr}
  */
 export function tapErr<T, E>(
-	result: Promise<Result<T, E>>,
-	fn: TapFn<E>,
+  result: Promise<Result<T, E>>,
+  fn: TapFn<E>,
 ): Promise<Result<T, E>>;
 export function tapErr<T, E>(result: Result<T, E>, fn: TapFn<E>): Result<T, E>;
 export function tapErr<T, E>(
-	result: Result<T, E> | Promise<Result<T, E>>,
-	fn: TapFn<E>,
+  result: Result<T, E> | Promise<Result<T, E>>,
+  fn: TapFn<E>,
 ): Result<T, E> | Promise<Result<T, E>> {
-	if (isPromise(result)) {
-		return result.then((x) => tapErr(x, fn));
-	}
+  if (isPromise(result)) {
+    return result.then((x) => tapErr(x, fn));
+  }
 
-	if (isErr(result)) {
-		fn(result.error);
-	}
+  if (isErr(result)) {
+    fn(result.error);
+  }
 
-	return result;
+  return result;
 }
 
 /**
@@ -400,34 +399,34 @@ export function tapErr<T, E>(
  * ```
  */
 export function map<T, E, const U extends Primitive>(
-	result: Promise<Result<T, E>>,
-	fn: (data: T) => U,
+  result: Promise<Result<T, E>>,
+  fn: (data: T) => U,
 ): Promise<Result<U, E>>;
 export function map<T, E, const U extends Primitive>(
-	result: Result<T, E>,
-	fn: (data: T) => U,
+  result: Result<T, E>,
+  fn: (data: T) => U,
 ): Result<U, E>;
 export function map<T, E, U>(
-	result: Promise<Result<T, E>>,
-	fn: (data: T) => U,
+  result: Promise<Result<T, E>>,
+  fn: (data: T) => U,
 ): Promise<Result<Awaited<U>, E>>;
 export function map<T, E, U>(
-	result: Result<T, E>,
-	fn: (data: T) => U,
+  result: Result<T, E>,
+  fn: (data: T) => U,
 ): Result<U, E>;
 export function map<T, E, U>(
-	result: Promise<Result<T, E>> | Result<T, E>,
-	fn: (data: T) => U,
+  result: Promise<Result<T, E>> | Result<T, E>,
+  fn: (data: T) => U,
 ): Result<U, E> | Promise<Result<U, E>> {
-	if (isPromise(result)) {
-		return result.then((x) => map(x, fn));
-	}
+  if (isPromise(result)) {
+    return result.then((x) => map(x, fn));
+  }
 
-	if (isOk(result)) {
-		return ok(fn(result.data));
-	}
+  if (isOk(result)) {
+    return ok(fn(result.data));
+  }
 
-	return result;
+  return result;
 }
 
 /**
@@ -461,34 +460,34 @@ export function map<T, E, U>(
  * ```
  */
 export function mapErr<T, E, const U extends Primitive>(
-	result: Promise<Result<T, E>>,
-	fn: (data: E) => U,
+  result: Promise<Result<T, E>>,
+  fn: (data: E) => U,
 ): Promise<Result<T, U>>;
 export function mapErr<T, E, const U extends Primitive>(
-	result: Result<T, E>,
-	fn: (data: E) => U,
+  result: Result<T, E>,
+  fn: (data: E) => U,
 ): Result<T, U>;
 export function mapErr<T, E, U>(
-	result: Promise<Result<T, E>>,
-	fn: (data: E) => U,
+  result: Promise<Result<T, E>>,
+  fn: (data: E) => U,
 ): Promise<Result<T, U>>;
 export function mapErr<T, E, U>(
-	result: Result<T, E>,
-	fn: (data: E) => U,
+  result: Result<T, E>,
+  fn: (data: E) => U,
 ): Result<T, U>;
 export function mapErr<T, E, U>(
-	result: Promise<Result<T, E>> | Result<T, E>,
-	fn: (data: E) => U,
+  result: Promise<Result<T, E>> | Result<T, E>,
+  fn: (data: E) => U,
 ): Result<T, U> | Promise<Result<T, U>> {
-	if (isPromise(result)) {
-		return result.then((x) => mapErr(x, fn));
-	}
+  if (isPromise(result)) {
+    return result.then((x) => mapErr(x, fn));
+  }
 
-	if (isErr(result)) {
-		return err(fn(result.error));
-	}
+  if (isErr(result)) {
+    return err(fn(result.error));
+  }
 
-	return result;
+  return result;
 }
 
 /**
@@ -531,21 +530,21 @@ export function try$<T, E>(fn: Promise<T>): Promise<Result<T, E>>;
 export function try$<T, E>(fn: () => Promise<T>): Promise<Result<T, E>>;
 export function try$<T, E>(fn: () => T): Result<T, E>;
 export function try$<T, E>(
-	fn: Promise<T> | (() => T),
+  fn: Promise<T> | (() => T),
 ): Promise<Result<T, E>> | Result<T, E> {
-	if (isPromise(fn)) {
-		return fn.then(ok).catch(err) as Promise<Result<T, E>>;
-	}
+  if (isPromise(fn)) {
+    return fn.then(ok).catch(err) as Promise<Result<T, E>>;
+  }
 
-	try {
-		const res = (fn as () => unknown)();
+  try {
+    const res = (fn as () => unknown)();
 
-		if (isPromise<T>(res)) {
-			return try$(res);
-		}
+    if (isPromise<T>(res)) {
+      return try$(res);
+    }
 
-		return ok(res) as Result<T, E>;
-	} catch (e) {
-		return err(e) as Result<T, E>;
-	}
+    return ok(res) as Result<T, E>;
+  } catch (e) {
+    return err(e) as Result<T, E>;
+  }
 }

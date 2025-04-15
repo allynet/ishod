@@ -17,14 +17,15 @@
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsc && vite build",
     "build:docs": "typedoc",
-    "test": "vitest",
-    "test:coverage": "vitest --coverage"
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "npm run test:watch -- --run",
+    "test:watch": "vitest --clearScreen --typecheck",
+    "test:coverage": "npm run test -- --coverage"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

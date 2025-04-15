@@ -1,12 +1,7 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "plugin": [
-    "typedoc-plugin-markdown"
-  ],
-  "entryPoints": [
-    "./README.md",
-    "./src/result.ts"
-  ],
+  "plugin": ["typedoc-plugin-markdown"],
+  "entryPoints": ["./README.md", "./src/result.ts"],
   "router": "structure-dir",
   "outputs": [
     {
@@ -26,9 +21,5 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeExternals": true,
-  "exclude": [
-    "node_modules",
-    "dist",
-    "docs"
-  ]
+  "exclude": ["node_modules", "dist", "docs"]
 }
