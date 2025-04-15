@@ -12,7 +12,7 @@
     "url": "https://github.com/allynet/ishod.git"
   },
   "license": "MIT",
-  "homepage": "https://github.com/allynet/ishod",
+  "homepage": "https://allynet.github.io/ishod/",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
