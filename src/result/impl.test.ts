@@ -44,6 +44,14 @@ describe("unwrap", () => {
 
     expect($result.unwrap($result.ok(value))).toBe(value);
   });
+
+  it("should return the value if the result is an ok promise", async () => {
+    const value = Symbol("value");
+
+    await expect(
+      $result.unwrap(Promise.resolve($result.ok(value))),
+    ).resolves.toBe(value);
+  });
 });
 
 describe("unwrapErr", () => {
@@ -51,6 +59,14 @@ describe("unwrapErr", () => {
     const error = Symbol("error");
 
     expect($result.unwrapErr($result.err(error))).toBe(error);
+  });
+
+  it("should return the error if the result is an err promise", async () => {
+    const error = Symbol("error");
+
+    await expect(
+      $result.unwrapErr(Promise.resolve($result.err(error))),
+    ).resolves.toBe(error);
   });
 });
 
@@ -61,10 +77,26 @@ describe("unwrapForced", () => {
     expect($result.unwrapForced($result.ok(value))).toBe(value);
   });
 
+  it("should return the value if the result is an ok promise", async () => {
+    const value = Symbol("value");
+
+    await expect(
+      $result.unwrapForced(Promise.resolve($result.ok(value))),
+    ).resolves.toBe(value);
+  });
+
   it("should return undefined if the result is an err", () => {
     const error = Symbol("error");
 
     expect($result.unwrapForced($result.err(error))).toBeUndefined();
+  });
+
+  it("should return undefined if the result is an err promise", async () => {
+    const error = Symbol("error");
+
+    await expect(
+      $result.unwrapForced(Promise.resolve($result.err(error))),
+    ).resolves.toBeUndefined();
   });
 });
 
@@ -135,6 +167,16 @@ describe("try$", () => {
     await expect($result.try$(Promise.reject(error))).resolves.toStrictEqual(
       $result.err(error),
     );
+  });
+
+  it("should return an err if async function throws", async () => {
+    const error = Symbol("error");
+
+    await expect(
+      $result.try$(async () => {
+        throw error;
+      }),
+    ).resolves.toStrictEqual($result.err(error));
   });
 });
 

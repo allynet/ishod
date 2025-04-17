@@ -88,14 +88,25 @@ export function isErr<T, E>(result: Result<T, E>): result is Err<E> {
  *
  * @example
  * ```ts
- * const result: Result<number, string> = ok(1);
+ * const result = ok(1);
  * const value: number = unwrap(result); // 1
+ * ```
+ * @example
+ * ```ts
+ * const result = Promise.resolve(ok(1));
+ * const value: Promise<number> = unwrap(result); // Promise<1>
  * ```
  *
  * @see {@link unwrapErr}
  * @see {@link unwrapOr}
  */
-export function unwrap<T>(result: Ok<T>): T {
+export function unwrap<T>(result: Ok<T>): T;
+export function unwrap<T>(result: Promise<Ok<T>>): Promise<T>;
+export function unwrap<T>(result: Ok<T> | Promise<Ok<T>>): T | Promise<T> {
+  if (isPromise(result)) {
+    return result.then((x) => unwrap(x));
+  }
+
   return result.data;
 }
 
@@ -104,15 +115,26 @@ export function unwrap<T>(result: Ok<T>): T {
  *
  * @example
  * ```ts
- * const result: Result<number, string> = err("error");
+ * const result = err("error");
  * const error: string = unwrapErr(result); // "error"
+ * ```
+ * @example
+ * ```ts
+ * const result = Promise.resolve(err("error"));
+ * const error: Promise<string> = unwrapErr(result); // Promise<"error">
  * ```
  *
  * @see {@link unwrap}
  * @see {@link unwrapOr}
  */
-export function unwrapErr<E>(result: Err<E>): E {
-  return result.error;
+export function unwrapErr<E>(err: Promise<Err<E>>): Promise<E>;
+export function unwrapErr<E>(err: Err<E>): E;
+export function unwrapErr<E>(err: Err<E> | Promise<Err<E>>): E | Promise<E> {
+  if (isPromise(err)) {
+    return err.then((x) => unwrapErr(x));
+  }
+
+  return err.error;
 }
 
 /**
@@ -133,12 +155,34 @@ export function unwrapErr<E>(result: Err<E>): E {
  * const result: Result<number, string> = err("error");
  * const value = unwrapForced(result); // undefined
  * ```
+ * @example
+ * ```ts
+ * const result: Promise<Result<number, string>> = Promise.resolve(ok(1));
+ * const value: Promise<number> = unwrapForced(result); // Promise<1>
+ * ```
+ * @example
+ * ```ts
+ * const result: Promise<Result<number, string>> = Promise.resolve(err("error"));
+ * const value: Promise<undefined> = unwrapForced(result); // Promise<undefined>
+ * ```
  *
  * @see {@link unwrap}
  */
+export function unwrapForced<T, E>(ok: Promise<Ok<T>>): Promise<T>;
 export function unwrapForced<T, E>(ok: Ok<T>): T;
+export function unwrapForced<T, E>(err: Promise<Err<E>>): Promise<undefined>;
 export function unwrapForced<T, E>(err: Err<E>): undefined;
-export function unwrapForced<T, E>(result: Result<T, E>): T | undefined {
+export function unwrapForced<T, E>(
+  result: Promise<Result<T, E>>,
+): Promise<T | undefined>;
+export function unwrapForced<T, E>(result: Result<T, E>): T | undefined;
+export function unwrapForced<T, E>(
+  result: Result<T, E> | Promise<Result<T, E>>,
+): T | undefined | Promise<T | undefined> {
+  if (isPromise(result)) {
+    return result.then((x) => unwrapForced(x));
+  }
+
   return (result as Ok<T>).data;
 }
 
@@ -160,10 +204,24 @@ export function unwrapForced<T, E>(result: Result<T, E>): T | undefined {
  * const result: Result<number, "error"> = err("error");
  * const value: number | "error" = unwrapEither(result); // "error"
  * ```
+ * @example
+ * ```ts
+ * const result: Promise<Result<number, string>> = Promise.resolve(ok(1));
+ * const value: Promise<1 | string> = unwrapEither(result); // Promise<1>
+ * ```
+ * @example
+ * ```ts
+ * const result: Promise<Result<number, string>> = Promise.resolve(err("error"));
+ * const value: Promise<number | string> = unwrapEither(result); // Promise<"error">
+ * ```
  *
  * @see {@link unwrap}
  * @see {@link unwrapErr}
  */
+export function unwrapEither<T, E>(ok: Promise<Ok<T>>): Promise<T>;
+export function unwrapEither<T, E>(ok: Ok<T>): T;
+export function unwrapEither<T, E>(err: Promise<Err<E>>): Promise<E>;
+export function unwrapEither<T, E>(err: Err<E>): E;
 export function unwrapEither<T, E>(
   result: Promise<Result<T, E>>,
 ): Promise<T | E>;
@@ -195,20 +253,51 @@ export function unwrapEither<T, E>(
  * const result: Result<number, string> = ok(1);
  * const value = unwrapOr(result, 0); // 1
  * ```
+ * @example
+ * ```ts
+ * const result: Promise<Result<number, string>> = Promise.resolve(err("error"));
+ * const value: Promise<number> = unwrapOr(result, 0); // Promise<0>
+ * ```
+ * @example
+ * ```ts
+ * const result: Promise<Result<number, string>> = Promise.resolve(ok(1));
+ * const value: Promise<number> = unwrapOr(result, 0); // Promise<1>
+ * ```
  *
  * @see {@link unwrap}
  * @see {@link unwrapErr}
- * @see {@link unwrapForced}
+ * @see {@link unwrapForced}F
  */
-export function unwrapOr<T, E, U, TResult extends Result<T, E>>(
-  result: TResult,
+export function unwrapOr<T, E, U>(ok: Promise<Ok<T>>, or: U): Promise<T>;
+export function unwrapOr<T, E, U>(ok: Ok<T>, or: U): T;
+export function unwrapOr<T, E, const U extends Primitive>(
+  err: Promise<Err<E>>,
   or: U,
-): TResult extends Ok<infer D> ? D : U {
-  if (isOk(result)) {
-    return result.data as never;
+): Promise<U>;
+export function unwrapOr<T, E, U>(err: Promise<Err<E>>, or: U): Promise<U>;
+export function unwrapOr<T, E, const U extends Primitive>(
+  err: Err<E>,
+  or: U,
+): U;
+export function unwrapOr<T, E, U>(err: Err<E>, or: U): U;
+export function unwrapOr<T, E, U>(result: Result<T, E>, or: U): T | U;
+export function unwrapOr<T, E, U>(
+  result: Promise<Result<T, E>>,
+  or: U,
+): Promise<T | U>;
+export function unwrapOr<T, E, U>(
+  result: Promise<Result<T, E>> | Result<T, E>,
+  or: U,
+): T | U | Promise<T | U> {
+  if (isPromise(result)) {
+    return result.then((x) => unwrapOr(x, or));
   }
 
-  return or as never;
+  if (isOk(result)) {
+    return result.data;
+  }
+
+  return or;
 }
 
 /**
@@ -355,7 +444,7 @@ export function map<T, E, const U extends Primitive>(
 export function map<T, E, U>(
   result: Promise<Result<T, E>>,
   fn: (data: T) => U,
-): Promise<Result<Awaited<U>, E>>;
+): Promise<Result<U, E>>;
 export function map<T, E, U>(
   result: Result<T, E>,
   fn: (data: T) => U,
@@ -477,7 +566,7 @@ export function tryMap<
 >(
   result: Promise<Result<T, E>>,
   fn: (data: T) => Result<TT, EE>,
-): Promise<Result<Awaited<TT>, E | EE>>;
+): Promise<Result<TT, E | EE>>;
 export function tryMap<
   T,
   E,
@@ -487,7 +576,7 @@ export function tryMap<
 export function tryMap<T, E, const TT extends Primitive, EE>(
   result: Promise<Result<T, E>>,
   fn: (data: T) => Result<TT, EE>,
-): Promise<Result<Awaited<TT>, E | EE>>;
+): Promise<Result<TT, E | EE>>;
 export function tryMap<T, E, const TT extends Primitive, EE>(
   result: Result<T, E>,
   fn: (data: T) => Result<TT, EE>,
@@ -495,7 +584,7 @@ export function tryMap<T, E, const TT extends Primitive, EE>(
 export function tryMap<T, E, TT, const EE extends Primitive>(
   result: Promise<Result<T, E>>,
   fn: (data: T) => Result<TT, EE>,
-): Promise<Result<Awaited<TT>, E | EE>>;
+): Promise<Result<TT, E | EE>>;
 export function tryMap<T, E, TT, const EE extends Primitive>(
   result: Result<T, E>,
   fn: (data: T) => Result<TT, EE>,
@@ -503,7 +592,7 @@ export function tryMap<T, E, TT, const EE extends Primitive>(
 export function tryMap<T, E, TT, EE>(
   result: Promise<Result<T, E>>,
   fn: (data: T) => Result<TT, EE>,
-): Promise<Result<Awaited<TT>, E | EE>>;
+): Promise<Result<TT, E | EE>>;
 export function tryMap<T, E, TT, EE>(
   result: Result<T, E>,
   fn: (data: T) => Result<TT, EE>,
@@ -511,13 +600,13 @@ export function tryMap<T, E, TT, EE>(
 export function tryMap<T, E, TT, EE>(
   result: Promise<Result<T, E>> | Result<T, E>,
   fn: (data: T) => Promise<Result<TT, EE>> | Result<TT, EE>,
-): Result<TT, E | EE> | Promise<Result<Awaited<TT>, E | EE>> {
+): Result<TT, E | EE> | Promise<Result<TT, E | EE>> {
   if (isPromise(result)) {
     return result.then((x) => tryMap(x, fn as never)) as never;
   }
 
   if (isOk(result)) {
-    return fn(result.data) as never;
+    return fn(result.data);
   }
 
   return result;
@@ -563,21 +652,21 @@ export function try$<T, E>(fn: Promise<T>): Promise<Result<T, E>>;
 export function try$<T, E>(fn: () => Promise<T>): Promise<Result<T, E>>;
 export function try$<T, E>(fn: () => T): Result<T, E>;
 export function try$<T, E>(
-  fn: Promise<T> | (() => T),
+  fn: Promise<T> | (() => T | Promise<T>),
 ): Promise<Result<T, E>> | Result<T, E> {
   if (isPromise(fn)) {
     return fn.then(ok).catch(err) as Promise<Result<T, E>>;
   }
 
   try {
-    const res = (fn as () => unknown)();
+    const res = fn();
 
-    if (isPromise<T>(res)) {
+    if (isPromise(res)) {
       return try$(res);
     }
 
-    return ok(res) as Result<T, E>;
+    return ok(res);
   } catch (e) {
-    return err(e) as Result<T, E>;
+    return err(e as E);
   }
 }
