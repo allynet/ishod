@@ -68,6 +68,36 @@ describe("unwrapForced", () => {
   });
 });
 
+describe("unwrapEither", () => {
+  it("should return the value if the result is an ok", () => {
+    const value = Symbol("value");
+
+    expect($result.unwrapEither($result.ok(value))).toBe(value);
+  });
+
+  it("should return the error if the result is an err", () => {
+    const error = Symbol("error");
+
+    expect($result.unwrapEither($result.err(error))).toBe(error);
+  });
+
+  it("should return the value if the result is an ok promise", async () => {
+    const value = Symbol("value");
+
+    await expect(
+      $result.unwrapEither(Promise.resolve($result.ok(value))),
+    ).resolves.toBe(value);
+  });
+
+  it("should return the error if the result is an err promise", async () => {
+    const error = Symbol("error");
+
+    await expect(
+      $result.unwrapEither(Promise.resolve($result.err(error))),
+    ).resolves.toBe(error);
+  });
+});
+
 describe("try$", () => {
   it("should return the value if it succeeds", () => {
     const value = Symbol("value");

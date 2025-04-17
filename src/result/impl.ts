@@ -117,12 +117,11 @@ export function unwrapErr<E>(result: Err<E>): E {
 
 /**
  * Force unwrap a result.
+ * You probably shouldn't use this function and use {@link unwrap} or {@link unwrapErr} instead.
  *
  * If the result is an `Ok`, it will return the value.
  *
  * If the result is an `Err`, it will return `undefined`.
- *
- * You probably shouldn't use this function (and use {@link unwrap} or {@link unwrapErr} instead), but it's here if you need it.
  *
  * @example
  * ```ts
@@ -141,6 +140,46 @@ export function unwrapForced<T, E>(ok: Ok<T>): T;
 export function unwrapForced<T, E>(err: Err<E>): undefined;
 export function unwrapForced<T, E>(result: Result<T, E>): T | undefined {
   return (result as Ok<T>).data;
+}
+
+/**
+ * Unwrap a result and return either the data or the error.
+ * You probably shouldn't use this function and use {@link unwrap} or {@link unwrapErr} instead.
+ *
+ * If the result is an `Ok`, it will return the data.
+ *
+ * If the result is an `Err`, it will return the error.
+ *
+ * @example
+ * ```ts
+ * const result: Result<1, string> = ok(1);
+ * const value: 1 | string = unwrapEither(result); // 1
+ * ```
+ * @example
+ * ```ts
+ * const result: Result<number, "error"> = err("error");
+ * const value: number | "error" = unwrapEither(result); // "error"
+ * ```
+ *
+ * @see {@link unwrap}
+ * @see {@link unwrapErr}
+ */
+export function unwrapEither<T, E>(
+  result: Promise<Result<T, E>>,
+): Promise<T | E>;
+export function unwrapEither<T, E>(result: Result<T, E>): T | E;
+export function unwrapEither<T, E>(
+  result: Result<T, E> | Promise<Result<T, E>>,
+): T | E | Promise<T | E> {
+  if (isPromise(result)) {
+    return result.then((x) => unwrapEither(x));
+  }
+
+  if (isOk(result)) {
+    return result.data;
+  }
+
+  return result.error;
 }
 
 /**
