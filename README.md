@@ -63,19 +63,19 @@ import { $result } from "@allynet/ishod";
 
 // Do an unsafe operation safely
 const gamble = $result.try$(() => {
-if (Math.random() > 0.5) {
-return true;
-}
+  if (Math.random() > 0.5) {
+    return 5;
+  }
 
-throw new Error("error");
+  throw new Error("error");
 });
 
 // And process the result safely
-const doubled = $result.map(gamble, (x) => x \* 2);
+const doubled = $result.map(gamble, (x) => x * 2);
 
 // Or log the error if it happens
 $result.tapErr(gamble, (error) => {
-console.error(error);
+  console.error(error);
 });
 
 // without having to check everything yourself
