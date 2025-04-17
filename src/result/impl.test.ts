@@ -214,6 +214,65 @@ describe("mapErr", () => {
   });
 });
 
+describe("tryMap", () => {
+  it("should map the value if it succeeds", () => {
+    const value = Symbol("value");
+    const mapped = Symbol("mapped");
+
+    expect(
+      $result.tryMap($result.ok(value), () => $result.ok(mapped)),
+    ).toStrictEqual($result.ok(mapped));
+  });
+
+  it("should map the promise value if it succeeds", async () => {
+    const value = Symbol("value");
+    const mapped = Symbol("mapped");
+    const fn = vi.fn().mockReturnValue(mapped);
+
+    await expect(
+      $result.tryMap(Promise.resolve($result.ok(value)), () =>
+        $result.ok(mapped),
+      ),
+    ).resolves.toStrictEqual($result.ok(mapped));
+  });
+
+  it("should not map if the result is an err", async () => {
+    const value = Symbol("value");
+
+    expect($result.tryMap($result.err(value), vi.fn())).toStrictEqual(
+      $result.err(value),
+    );
+  });
+
+  it("should not map if the result is an err promise", async () => {
+    const value = Symbol("value");
+
+    await expect(
+      $result.tryMap(Promise.resolve($result.err(value)), vi.fn()),
+    ).resolves.toStrictEqual($result.err(value));
+  });
+
+  it("should map the error if the function returns an err", () => {
+    const value = Symbol("value");
+    const mapped = Symbol("mapped");
+
+    expect(
+      $result.tryMap($result.ok(value), () => $result.err(mapped)),
+    ).toStrictEqual($result.err(mapped));
+  });
+
+  it("should map the promise error if the function returns an err", async () => {
+    const value = Symbol("value");
+    const mapped = Symbol("mapped");
+
+    await expect(
+      $result.tryMap(Promise.resolve($result.ok(value)), () =>
+        $result.err(mapped),
+      ),
+    ).resolves.toStrictEqual($result.err(mapped));
+  });
+});
+
 describe("tap", () => {
   it("should run the function if the result is OK", () => {
     const value = Symbol("value");

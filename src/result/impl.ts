@@ -437,6 +437,93 @@ export function mapErr<T, E, U>(
 }
 
 /**
+ * Try to map a result.
+ *
+ * Works similarly to the {@link map} function, but the callback returns a result.
+ *
+ * The returned result is treated as the new result.
+ *
+ * If the original result is an `Err`, the callback will not be called, and the original `Err` will be returned.
+ *
+ * @example
+ * ```ts
+ * const result = tryMap(ok(1), (data) => {
+ *  return ok(data + 1);
+ * });
+ * // result is an Ok with the value 2;
+ * ```
+ *
+ * @example
+ * ```ts
+ * const result = tryMap(err("error"), (data) => {
+ *  return ok(data + 1);
+ * });
+ * // result is an Err with the error "error";
+ * ```
+ *
+ * @example
+ * ```ts
+ * const result = tryMap(ok(1), (data) => {
+ *  return err("new error");
+ * });
+ * // result is an Err with the error "new error";
+ * ```
+ */
+export function tryMap<
+  T,
+  E,
+  const TT extends Primitive,
+  const EE extends Primitive,
+>(
+  result: Promise<Result<T, E>>,
+  fn: (data: T) => Result<TT, EE>,
+): Promise<Result<Awaited<TT>, E | EE>>;
+export function tryMap<
+  T,
+  E,
+  const TT extends Primitive,
+  const EE extends Primitive,
+>(result: Result<T, E>, fn: (data: T) => Result<TT, EE>): Result<TT, E | EE>;
+export function tryMap<T, E, const TT extends Primitive, EE>(
+  result: Promise<Result<T, E>>,
+  fn: (data: T) => Result<TT, EE>,
+): Promise<Result<Awaited<TT>, E | EE>>;
+export function tryMap<T, E, const TT extends Primitive, EE>(
+  result: Result<T, E>,
+  fn: (data: T) => Result<TT, EE>,
+): Result<TT, E | EE>;
+export function tryMap<T, E, TT, const EE extends Primitive>(
+  result: Promise<Result<T, E>>,
+  fn: (data: T) => Result<TT, EE>,
+): Promise<Result<Awaited<TT>, E | EE>>;
+export function tryMap<T, E, TT, const EE extends Primitive>(
+  result: Result<T, E>,
+  fn: (data: T) => Result<TT, EE>,
+): Result<TT, E | EE>;
+export function tryMap<T, E, TT, EE>(
+  result: Promise<Result<T, E>>,
+  fn: (data: T) => Result<TT, EE>,
+): Promise<Result<Awaited<TT>, E | EE>>;
+export function tryMap<T, E, TT, EE>(
+  result: Result<T, E>,
+  fn: (data: T) => Result<TT, EE>,
+): Result<TT, E | EE>;
+export function tryMap<T, E, TT, EE>(
+  result: Promise<Result<T, E>> | Result<T, E>,
+  fn: (data: T) => Promise<Result<TT, EE>> | Result<TT, EE>,
+): Result<TT, E | EE> | Promise<Result<Awaited<TT>, E | EE>> {
+  if (isPromise(result)) {
+    return result.then((x) => tryMap(x, fn as never)) as never;
+  }
+
+  if (isOk(result)) {
+    return fn(result.data) as never;
+  }
+
+  return result;
+}
+
+/**
  * Try to run a function and return a result.
  *
  * If the function throws an error, it will be caught and returned as an `Err`.
