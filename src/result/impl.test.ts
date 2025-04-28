@@ -216,6 +216,27 @@ describe("map", () => {
       $result.map(Promise.resolve($result.err(value)), vi.fn()),
     ).resolves.toStrictEqual($result.err(value));
   });
+
+  it("should handle exceptions in the callback", () => {
+    const value = Symbol("value");
+    const testFn = () =>
+      $result.map($result.ok(value), () => {
+        throw new Error("error");
+      });
+
+    expect(testFn).not.toThrow();
+    expect(testFn()).toStrictEqual($result.err(new Error("error")));
+  });
+
+  it("should promise rejections in the callback", async () => {
+    const value = Symbol("value");
+    const testFn = () =>
+      $result.map($result.ok(value), () => Promise.reject(new Error("error")));
+
+    await expect(testFn()).resolves.toStrictEqual(
+      $result.err(new Error("error")),
+    );
+  });
 });
 
 describe("mapErr", () => {
@@ -253,6 +274,29 @@ describe("mapErr", () => {
     await expect(
       $result.mapErr(Promise.resolve($result.ok(value)), vi.fn()),
     ).resolves.toStrictEqual($result.ok(value));
+  });
+
+  it("should handle exceptions in the callback", () => {
+    const value = Symbol("value");
+    const testFn = () =>
+      $result.mapErr($result.err(value), () => {
+        throw new Error("error");
+      });
+
+    expect(testFn).not.toThrow();
+    expect(testFn()).toStrictEqual($result.err(new Error("error")));
+  });
+
+  it("should promise rejections in the callback", async () => {
+    const value = Symbol("value");
+    const testFn = () =>
+      $result.mapErr($result.err(value), () =>
+        Promise.reject(new Error("error")),
+      );
+
+    await expect(testFn()).resolves.toStrictEqual(
+      $result.err(new Error("error")),
+    );
   });
 });
 

@@ -435,7 +435,11 @@ export function tapErr<T, E>(
  */
 export function map<T, E, const U extends Primitive>(
   result: Promise<Result<T, E>>,
-  fn: (data: T) => U,
+  fn: (data: T) => U | Promise<U>,
+): Promise<Result<U, E>>;
+export function map<T, E, const U extends Primitive>(
+  result: Result<T, E>,
+  fn: (data: T) => Promise<U>,
 ): Promise<Result<U, E>>;
 export function map<T, E, const U extends Primitive>(
   result: Result<T, E>,
@@ -443,7 +447,11 @@ export function map<T, E, const U extends Primitive>(
 ): Result<U, E>;
 export function map<T, E, U>(
   result: Promise<Result<T, E>>,
-  fn: (data: T) => U,
+  fn: (data: T) => U | Promise<U>,
+): Promise<Result<U, E>>;
+export function map<T, E, U>(
+  result: Result<T, E>,
+  fn: (data: T) => Promise<U>,
 ): Promise<Result<U, E>>;
 export function map<T, E, U>(
   result: Result<T, E>,
@@ -458,7 +466,7 @@ export function map<T, E, U>(
   }
 
   if (isOk(result)) {
-    return ok(fn(result.data));
+    return try$(() => fn(result.data));
   }
 
   return result;
@@ -500,11 +508,19 @@ export function mapErr<T, E, const U extends Primitive>(
 ): Promise<Result<T, U>>;
 export function mapErr<T, E, const U extends Primitive>(
   result: Result<T, E>,
+  fn: (data: E) => Promise<U>,
+): Promise<Result<T, U>>;
+export function mapErr<T, E, const U extends Primitive>(
+  result: Result<T, E>,
   fn: (data: E) => U,
 ): Result<T, U>;
 export function mapErr<T, E, U>(
   result: Promise<Result<T, E>>,
-  fn: (data: E) => U,
+  fn: (data: E) => U | Promise<U>,
+): Promise<Result<T, U>>;
+export function mapErr<T, E, U>(
+  result: Result<T, E>,
+  fn: (data: E) => Promise<U>,
 ): Promise<Result<T, U>>;
 export function mapErr<T, E, U>(
   result: Result<T, E>,
@@ -512,14 +528,26 @@ export function mapErr<T, E, U>(
 ): Result<T, U>;
 export function mapErr<T, E, U>(
   result: Promise<Result<T, E>> | Result<T, E>,
-  fn: (data: E) => U,
+  fn: (data: E) => U | Promise<U>,
 ): Result<T, U> | Promise<Result<T, U>> {
   if (isPromise(result)) {
-    return result.then((x) => mapErr(x, fn));
+    return result.then((x) => mapErr(x, fn)) as Promise<Result<T, U>>;
   }
 
   if (isErr(result)) {
-    return err(fn(result.error));
+    /*
+     * Result is either Ok<fn result> | Err<some error>.
+     * Since we're mapping over the error anyway either value is useful here.
+     * We either get the error we got sent in or a new error from the callback that we report right back.
+     */
+    const r = try$(() => fn(result.error));
+    const v = unwrapEither(r) as U | Promise<U>;
+
+    if (isPromise(v)) {
+      return v.then((x) => err(x));
+    }
+
+    return err(v);
   }
 
   return result;
