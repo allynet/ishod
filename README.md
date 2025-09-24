@@ -4,6 +4,8 @@
 
 It helps you handle errors uniformly and safely across sync and async code.
 
+The motivational blog post can be found here: https://josip.igr.ec/blog/building-result-in-typescript/
+
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/%40allynet%2Fishod)
 <a href="https://www.npmjs.com/package/@allynet/ishod">![NPM Version](https://img.shields.io/npm/v/%40allynet%2Fishod)</a>
 
@@ -80,7 +82,6 @@ $result.tapErr(gamble, (error) => {
 
 // without having to check everything yourself
 // or creating a bunch of `let val = null` variables
-
 ```
 
 </details>
