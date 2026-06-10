@@ -24,6 +24,7 @@ export default defineConfig({
     },
   },
   test: {
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
     coverage: {
       reporter: ["text", "json-summary", "json", "html-spa"],
       clean: true,

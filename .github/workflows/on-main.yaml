@@ -26,9 +26,25 @@ jobs:
     with:
       artifact-name: main-build
 
+  e2e:
+    name: "E2E"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      - name: "Setup Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: "Install dependencies"
+        run: bun install
+      - name: "Run e2e tests"
+        run: bun run test:e2e
+
   publish-docs:
     name: "Publish docs"
-    needs: [lint, test, build]
+    needs: [lint, test, build, e2e]
     permissions:
       pages: write
       id-token: write

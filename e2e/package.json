@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest --run",
+    "typecheck": "tsc --noEmit",
+    "test:all": "tsc --noEmit && vitest --run"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^3"
+  },
+  "dependencies": {
+    "@allynet/ishod": "file:../allynet-ishod-0.0.0.tgz"
+  }
+}
