@@ -9,6 +9,9 @@ export default defineConfig({
   plugins: [
     dts({
       rollupTypes: true,
+      beforeWriteFile(filePath, content) {
+        return { content: content.replace(/\r\n?/g, "\n") };
+      },
     }),
   ],
   build: {

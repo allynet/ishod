@@ -3,7 +3,7 @@
  * This type is used to create a result.
  * It's not exported, so you shouldn't use it directly.
  */
-export type result<OK extends boolean, T = never, E = never> = OK extends true
+export type _result<OK extends boolean, T = never, E = never> = OK extends true
   ? {
       ok: OK;
       data: T;
@@ -41,7 +41,7 @@ export type Result<T, E = unknown> = Ok<T> | Err<E>;
  * const okResult: Ok<number> = ok(1);
  * ```
  */
-export type Ok<T> = result<true, T>;
+export type Ok<T> = _result<true, T>;
 /**
  * An `Err` is a type that represents a failed result.
  *
@@ -50,7 +50,7 @@ export type Ok<T> = result<true, T>;
  * const errResult: Err<string> = err("error");
  * ```
  */
-export type Err<E> = result<false, never, E>;
+export type Err<E> = _result<false, never, E>;
 
 /**
  * This type is used to get the value of a result.
