@@ -5,7 +5,6 @@ export function isPromise<T = unknown>(value: unknown): value is Promise<T> {
 }
 
 /**
- * @internal
  * List of primitive types.
  */
 export type Primitive =

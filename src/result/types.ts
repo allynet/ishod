@@ -1,19 +1,4 @@
 /**
- * @internal
- * This type is used to create a result.
- * It's not exported, so you shouldn't use it directly.
- */
-export type _result<OK extends boolean, T = never, E = never> = OK extends true
-  ? {
-      ok: OK;
-      data: T;
-    }
-  : {
-      ok: OK;
-      error: E;
-    };
-
-/**
  * A result is a type that can be either an `Ok` or an `Err`.
  *
  * It represents the result of an operation.
@@ -41,7 +26,7 @@ export type Result<T, E = unknown> = Ok<T> | Err<E>;
  * const okResult: Ok<number> = ok(1);
  * ```
  */
-export type Ok<T> = _result<true, T>;
+export type Ok<T> = { ok: true; data: T };
 /**
  * An `Err` is a type that represents a failed result.
  *
@@ -50,7 +35,7 @@ export type Ok<T> = _result<true, T>;
  * const errResult: Err<string> = err("error");
  * ```
  */
-export type Err<E> = _result<false, never, E>;
+export type Err<E> = { ok: false; error: E };
 
 /**
  * This type is used to get the value of a result.
@@ -84,7 +69,6 @@ export type ResultError<TResult extends Result<any, any>> = TResult extends Err<
   : never;
 
 /**
- * @internal
  * Definition for a function that can be used to tap into a result.
  *
  * @see {@link tap}

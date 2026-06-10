@@ -13,8 +13,8 @@
   },
   "license": "MIT",
   "homepage": "https://allynet.github.io/ishod/",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "files": ["dist"],
@@ -25,7 +25,8 @@
     "lint:fix": "biome check --write .",
     "test": "npm run test:watch -- --run",
     "test:watch": "vitest --clearScreen --typecheck",
-    "test:coverage": "npm run test -- --coverage"
+    "test:coverage": "npm run test -- --coverage",
+    "test:e2e": "bash e2e/run.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
