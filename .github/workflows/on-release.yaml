@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+  id-token: write
 
 jobs:
   build:
@@ -28,12 +28,10 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: "Setup Node"
         uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: "24.x"
           registry-url: "https://registry.npmjs.org"
       - name: "Get build artifacts"
         uses: actions/download-artifact@v4
@@ -41,10 +39,5 @@ jobs:
           name: ${{ needs.build.outputs.artifact-name }}
       - name: "Update version"
         run: node update-version.js '${{ github.event.release.tag_name }}'
-      - name: Create .npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: "Publish package"
-        run: |
-          npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
